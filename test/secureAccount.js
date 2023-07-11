@@ -25,7 +25,10 @@ describe('SecureAccount', function () {
     const mfaSetupTx = await secureAccount.setupMFA('publicKey', 'recoveryCode');
     await mfaSetupTx.wait();
 
-    expect(await secureAccount.getPublicKey(owner.address)).to.equal('publicKey');
+    //ethers.AbiCoder.defaultAbiCoder().decode(["uint"], VARIABLE_NAME for the bytes variables
+    const publicKeyBytes = await secureAccount.getPublicKey(owner.address);
+    const publicKey = ethers.AbiCoder.defaultAbiCoder().decode(['bytes'], publicKeyBytes)[0];
+    expect(publicKey).to.equal('publicKey');
   });
 
   it('should authenticate successfully', async function () {
@@ -51,6 +54,8 @@ describe('SecureAccount', function () {
     const recoverTx = await secureAccount.recoverAccount('user1', 'recoveryCode');
     await recoverTx.wait();
 
-    expect(await secureAccount.getPublicKey(owner.address)).to.equal('new-public-key');
+    const newPublicKeyBytes = await secureAccount.getPublicKey(owner.address);
+    const newPublicKey = ethers.AbiCoder.defaultAbiCoder().decode(['bytes'], newPublicKeyBytes)[0];
+    expect(newPublicKey).to.equal('new-public-key')
   });
 });
