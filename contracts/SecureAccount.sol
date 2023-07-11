@@ -43,9 +43,24 @@ contract SecureAccount {
 
     function verifyOTP(bytes memory publicKey, bytes memory otp) private pure returns(bool) {
         // Perform OTP verification logic using Lit Protocol
-        // Example: Use Lit Actions to verify the OTP
-        // For demonstration purposes, we assume the OTP is correct
-        return true;
+        // For demonstration purposes, assume the OTP is incorrect
+        if (verifyOTPUsingLitProtocol(publicKey, otp)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function verifyOTPUsingLitProtocol(bytes memory publicKey, bytes memory otp) private pure returns (bool) {
+        // Implement your OTP verification logic using Lit Protocol here
+        // Return true if the OTP is correct, false otherwise
+
+        bytes memory expectedOTP = "123456";
+        if (keccak256(otp) == keccak256(expectedOTP)) {
+            return true; // OTP is correct
+        } else {
+            return false; // OTP is incorrect
+        }
     }
 
     function recoverAccount(string memory username, string memory recoveryCode) public {
@@ -56,8 +71,7 @@ contract SecureAccount {
             keccak256(bytes(user.recoveryCode)) == keccak256(bytes(recoveryCode)),
             "Invalid recovery information"
         );
-        // Perform account recovery logic
-        // Example: Generate a new public key for the user using Lit Protocol
+     
         user.publicKey = hex"04f7c919ade03e024fff4538ffe899357144c9de313b06dce454666aa2cb8a49c3760401503fc6da8798940590f98db99251c952c9fbd870b2e556521da1c6c860";
         emit AccountRecovered(msg.sender, user.publicKey);
     }

@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 describe('SecureAccount', function () {
   let secureAccount;
@@ -7,6 +8,7 @@ describe('SecureAccount', function () {
 
   beforeEach(async function () {
     secureAccount = await hre.ethers.deployContract('SecureAccount');
+    [owner] = await ethers.getSigners();
     await secureAccount.waitForDeployment();
   });
 
@@ -32,6 +34,14 @@ describe('SecureAccount', function () {
 
     const authenticateResult = await secureAccount.authenticate('user1', 'passwordHash', 'otp');
     expect(authenticateResult).to.be.true;
+  });
+
+  it('should not authenticate with incorrect OTP', async function () {
+    await secureAccount.registerUser('user1', 'passwordHash');
+    await secureAccount.setupMFA('publicKey', 'recoveryCode');
+
+    const authenticateResult = await secureAccount.authenticate('user1', 'passwordHash', 'incorrectOTP');
+    expect(authenticateResult).to.be.false;
   });
 
   it('should recover account', async function () {
