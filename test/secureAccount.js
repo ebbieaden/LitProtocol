@@ -21,14 +21,17 @@ describe('SecureAccount', function () {
 
   it('should setup MFA', async function () {
     await secureAccount.registerUser('user1', 'passwordHash');
+    
+    const publicKeyBytes = ethers.toBeHex('publicKey');
+    const recoveryCode = 'recoveryCode';
 
-    const mfaSetupTx = await secureAccount.setupMFA('publicKey', 'recoveryCode');
+    const mfaSetupTx = await secureAccount.setupMFA(publicKeyBytes, recoveryCode);
     await mfaSetupTx.wait();
 
     //ethers.AbiCoder.defaultAbiCoder().decode(["uint"], VARIABLE_NAME for the bytes variables
-    const publicKeyBytes = await secureAccount.getPublicKey(owner.address);
-    const publicKey = ethers.AbiCoder.defaultAbiCoder().decode(['bytes'], publicKeyBytes)[0];
-    expect(publicKey).to.equal('publicKey');
+    const storedPublicKeyBytes = await secureAccount.getPublicKey(owner.address);
+    const storedPublicKey = ethers.AbiCoder.defaultAbiCoder().decode(['bytes'], storedPublicKeyBytes)[0];
+    expect(storedPublicKey).to.equal('publicKey');
   });
 
   it('should authenticate successfully', async function () {
